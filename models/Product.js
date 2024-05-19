@@ -10,7 +10,7 @@ const productSchema=mongoose.Schema({
         ref: 'Category',
         required:true
     },
-    pic:{type:String,required:true},
+    pics:[{type:String}],
     price:{type:Number,required:true},
     status:{type:Number,required:true},
     comments:[
@@ -19,10 +19,12 @@ const productSchema=mongoose.Schema({
             ref: 'Comment'
         }
     ],
-    Vendeur:{
+    vendeur:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Vendeur'
-    }
+    },
+    sizes:[{type:Number}],
+    couleurs:[{type:String}],
 }, { versionKey: false});
 
 

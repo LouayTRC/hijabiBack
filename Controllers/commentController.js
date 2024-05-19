@@ -1,15 +1,19 @@
 const Product = require('../models/Product')
 const Comment = require('../Models/Comment');
 const Vendeur = require('../models/Vendeur');
+const Client = require('../models/Client');
 
 exports.addComment = async (req, res) => {
     try {
         const product = await Product.findById(req.params.id);
+        const client=await Client.findOne({user:req.auth.user_id})
+
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
         const comment = new Comment({
-            ...req.body
+            ...req.body,
+            Client:client
         });
         await comment.save();
         product.comments.push(comment);
@@ -29,16 +33,17 @@ exports.deleteComment = (req, res) => {
 
 exports.replyComment = async (req, res) => {
     try {
-        const comment = await Comment.findOne({ _id: req.params.id })
+        const product = await Product.findOne({ _id: req.params.idP })
+        const comment = await Comment.findOne({ _id: req.params.idC })
         const vendeur= await Vendeur.findOne({user:req.auth.user_id})
-        if (vendeur._id=comment.vendeur) {
+        if (vendeur._id=product.vendeur ) {
             const reply = new Comment({
                 ...req.body
             });
             await reply.save()
-            comment.replys.push(reply)
+            comment.replys.push(reply._id)
             await comment.save()
-            res.status(201).json(comment)
+            res.status(201).json(reply)
         } else {
             res.status(401).json({message:"you cannot reply to a comment on another vendeur product"})
         }

@@ -1,14 +1,16 @@
+const Category = require('../models/Category');
 const Product = require('../models/Product');
 const Vendeur = require('../models/Vendeur');
 
 
 exports.createProduct = async (req, res, next) => {
     const vendeur=await Vendeur.findOne({ user: req.auth.user_id })
-
+    console.log("vendeur",vendeur);
     const product = new Product({
         ...req.body,
-        Vendeur:vendeur._id
+        vendeur:vendeur._id
     });
+    console.log("product",product);
     product.save()
         .then(() => res.status(201).json(product))
         .catch(error => res.status(400).json({ error }));
@@ -25,8 +27,15 @@ exports.getProduct = async (req, res, next) => {
     }
     else {
         const product = await Product.findOne({ _id: req.params._id }).populate('category').populate({
+            path: 'vendeur',
+            populate: { path: 'user' } 
+        })
+        .populate({
             path: 'comments',
-            populate: { path: 'replys' }
+            populate: [
+                { path: 'Client', populate: { path: 'user' } }, 
+                { path: 'replys' }
+            ]
         });
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
@@ -52,7 +61,8 @@ exports.verifyProducts = async (productsCmmd) => {
     const products = []
     let verified = true;
     for (const element of productsCmmd) {
-        const product = await Product.findOne({ _id: element.product });
+        console.log('element',element);
+        const product = await Product.findOne({ _id: element.idProduct });
         if (!product) {
             verified = false
             break;
@@ -68,10 +78,12 @@ exports.verifyProducts = async (productsCmmd) => {
             }
         }
     }
+    console.log("products",products);
     return { verified, productsCmmd: products }
 }
 
 exports.listProducts = async (req, res, next) => {
+    console.log("lena");
     let id;
     const products = [];
     for (const element of req.body) {
@@ -80,7 +92,8 @@ exports.listProducts = async (req, res, next) => {
         } else {
             id=element._id
         }
-        const prd = await Product.findOne({ _id: id });
+        const prd = await Product.findOne({ _id: id }).populate('category');
+        prd.qte=element.qte
         if (!prd) {
             return res.status(404)
         } else {
@@ -107,3 +120,22 @@ exports.sellProducts = async (products, res) => {
     }
 }
 
+exports.myProducts=async (req,res)=>{
+    const vendeur=await Vendeur.findOne({user:req.auth.user_id}).populate('user')
+    console.log("vendeur",vendeur);
+    const products=await Product.find({vendeur:vendeur._id}).populate('category').populate({
+        path: 'comments',
+        populate: { path: 'replys' }
+    });
+    console.log("produits",products);
+    res.status(200).json(products)
+}
+
+exports.getProductsByCategory=async (req,res)=>{
+    const products=await Product.find({category:req.params.id}).populate('category').populate({
+        path: 'comments',
+        populate: { path: 'replys' }
+    });
+
+    res.status(200).json(products)
+}

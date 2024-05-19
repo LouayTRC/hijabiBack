@@ -16,7 +16,13 @@ exports.deleteRole=(req,res)=>{
 }
 
 exports.getRoles=(req,res)=>{
-    Role.find()
+    Role.find({ name: { $ne: 'Admin' } })
     .then((roles)=>res.status(200).json(roles))
+    .catch((error)=>res.status(400).json({error}))
+}
+
+exports.getRoleById=(req,res)=>{
+    Role.findOne({_id:req.params.id})
+    .then((role)=>res.status(200).json(role))
     .catch((error)=>res.status(400).json({error}))
 }

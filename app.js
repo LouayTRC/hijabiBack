@@ -11,6 +11,8 @@ const commentRouter=require('./Routes/comment')
 const commandRouter=require('./Routes/command')
 const vendeurRouter=require('./Routes/vendeur')
 const adminRouter=require('./Routes/admin')
+const clientRouter=require('./Routes/client')
+const userRouter=require('./Routes/user')
 
 const authenticate=require('./middleware/authenticate')
 const authorize=require('./middleware/authorize')
@@ -38,13 +40,15 @@ const corsOpts = {
 app.use(cors(corsOpts));
 
 app.use('/api/auth', authRouter);
-app.use('/api/role',authenticate,authorize(["Admin"]), roleRouter);
+app.use('/api/role', roleRouter);
 app.use('/api/category', categoryRouter);
 app.use('/api/product', productRouter);
 app.use('/api/comment',authenticate, commentRouter);
 app.use('/api/cmmd',authenticate, commandRouter);
 app.use('/api/vendeur',authenticate,authorize(["Admin"]), vendeurRouter);
+app.use('/api/client',authenticate,authorize(["Admin"]), clientRouter);
 app.use('/api/admin',authenticate, adminRouter);
+app.use('/api/user',authenticate, userRouter);
 
 app.use((req, res) => {
     res.json({ message: "serveur works" });

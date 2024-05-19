@@ -22,3 +22,4 @@ const commandSchema = mongoose.Schema({
 }, { versionKey: false });
 
 module.exports = mongoose.model('Command', commandSchema);
+

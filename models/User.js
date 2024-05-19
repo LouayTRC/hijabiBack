@@ -6,8 +6,11 @@ const userSchema=mongoose.Schema({
     username:{type:String,required:true,unique:true},
     password:{type:String,required:true},
     fullname:{type:String,required:true},
-    role:{type:String,required:true},
-    pdp:{type:String},
+    role:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Role'
+    },
+    pdp:{type:String,required:true},
     status:{type:Number,required:true}
 },{ versionKey: false,timestamps: true});
 

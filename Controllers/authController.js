@@ -1,10 +1,12 @@
 const User = require('../models/User');
 const Client = require('../models/Client');
-const userCtrl = require('../controllers/UserController');
+const userCtrl = require('../Controllers/userController');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Role = require('../models/Role')
 const Vendeur = require('../models/Vendeur')
+
+
 
 exports.login = (req, res, next) => {
     User.findOne({ username: req.body.username })
@@ -17,8 +19,8 @@ exports.login = (req, res, next) => {
                     if (!valid) {
                         return res.status(401).json({ message: "login/mdp incorrect" });
                     }
-                    else{
-                        if (user.status!=1) {
+                    else {
+                        if (user.status != 1) {
                             return res.status(401).json({ message: "your profile isn't activated " });
                         } else {
                             return res.status(200).json({
@@ -41,22 +43,25 @@ exports.login = (req, res, next) => {
 }
 
 exports.signup = async (req, res, next) => {
-    const role =await Role.findOne({ _id: req.body.role })
+    try {
+        const role = await Role.findOne({ _id: req.body.role })
+
+
     if (role.name == "Vendeur") {
         const user = await userCtrl.createUser(req.body)
         user.role = req.body.role
-        user.status=0
+        user.status = 0
         await user.save()
-        const vendeur=new Vendeur({
+        const vendeur = new Vendeur({
             user
         })
         vendeur.save()
-        .then((vendeur) => res.status(201).json({ vendeur, message: 'vendeur created' }))
-        .catch(error => res.status(400).json({ error }))
+            .then((vendeur) => res.status(201).json({ vendeur, message: 'vendeur created' }))
+            .catch(error => res.status(400).json({ error }))
     } else {
         const user = await userCtrl.createUser(req.body)
         user.role = req.body.role
-        user.status=1
+        user.status = 1
         await user.save()
         const client = new Client({
             user,
@@ -65,6 +70,10 @@ exports.signup = async (req, res, next) => {
             .then((client) => res.status(201).json({ client, message: 'client created' }))
             .catch(error => res.status(400).json({ error }))
     }
+    } catch (error) {
+        res.status(400).json({ error })
+    }
+    
 }
 
 exports.verifyToken = (req, res, next) => {
