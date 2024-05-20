@@ -24,6 +24,7 @@ mongoose.connect('mongodb+srv://louuu:azertytreza@test.ngqlkz4.mongodb.net/?retr
 
 
 app.use(express.json());
+
 const corsOpts = {
   origin: '*',
   methods: [
