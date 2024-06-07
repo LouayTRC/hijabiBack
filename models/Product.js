@@ -24,7 +24,7 @@ const productSchema=mongoose.Schema({
         ref: 'Vendeur'
     },
     sizes:[{type:Number}],
-    couleurs:[{type:String}],
+    couleurs:[{type:String}]
 }, { versionKey: false});
 
 

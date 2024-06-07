@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const commandSchema = mongoose.Schema({
-    Client: {
+    client: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Client',
         required: true
@@ -9,7 +9,7 @@ const commandSchema = mongoose.Schema({
     total:{type:Number},
     Products: [
         {
-            product: {
+            _id: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Product'
             },

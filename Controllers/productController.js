@@ -22,7 +22,7 @@ exports.getProduct = async (req, res, next) => {
         const products = await Product.find().populate('category').populate({
             path: 'comments',
             populate: { path: 'replys' }
-        });
+        })
         res.status(200).json(products)
     }
     else {
@@ -34,7 +34,7 @@ exports.getProduct = async (req, res, next) => {
             path: 'comments',
             populate: [
                 { path: 'Client', populate: { path: 'user' } }, 
-                { path: 'replys' }
+                { path: 'replys' },
             ]
         });
         if (!product) {
@@ -105,24 +105,30 @@ exports.listProducts = async (req, res, next) => {
 
 
 exports.sellProducts = async (products, res) => {
-    for (const p of products) {
-        const product = await Product.findOne({ _id: p._id });
-        if (p.qte == product.qte) {
-            Product.updateOne({ _id: p._id }, { qte: 0, status: 0 })
-            .then( () => res.status(200).json({message:'updated successfully'}))
-            .catch((error) => res.status(400).json({ error }));
+    try {
+        console.log("here");
+        for (const p of products) {
+            const product = await Product.findOne({ _id: p._id });
+            if (p.qte == product.qte) {
+                Product.updateOne({ _id: p._id }, { qte: 0, status: 0 })
+                .then( () => res.status(200).json({message:'updated successfully'}))
+                .catch((error) => res.status(400).json({ error }));
+            }
+            else {
+                Product.updateOne({ _id: p._id }, { qte: product.qte - p.qte, _id: p._id })
+                .then( () => res.status(200).json({message:'updated successfully'}))
+                .catch((error) => res.status(400).json({ error }));
+            }
         }
-        else {
-            Product.updateOne({ _id: p._id }, { qte: product.qte - p.qte, _id: p._id })
-            .then( () => res.status(200).json({message:'updated successfully'}))
-            .catch((error) => res.status(400).json({ error }));
-        }
+    } catch (error) {
+        console.log(error);
     }
+    
+
 }
 
 exports.myProducts=async (req,res)=>{
     const vendeur=await Vendeur.findOne({user:req.auth.user_id}).populate('user')
-    console.log("vendeur",vendeur);
     const products=await Product.find({vendeur:vendeur._id}).populate('category').populate({
         path: 'comments',
         populate: { path: 'replys' }
